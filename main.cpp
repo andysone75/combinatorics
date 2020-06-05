@@ -24,12 +24,11 @@ Input* Read(const char* filename);
 
 int main()
 {
-
     vector<vector<int>> a, p;
     Input* input = Read("input.txt");
 
     if (input == nullptr) {
-        cout << "Input reading error" << endl;
+        system("pause");
         return -1;
     }
 
@@ -96,6 +95,7 @@ int main()
     }
     cout << endl << min << endl;
     
+    system("pause");
     return 0;
 }
 
@@ -104,9 +104,18 @@ Input* Read(const char* filename) {
     auto input = string(istreambuf_iterator<char>(ifinput), istreambuf_iterator<char>());
     ifinput.close();
 
+    if (input.empty()) {
+        cout << "File \"input.txt\" doesn't exist in this directory" << endl;
+        return nullptr;
+    }
+
     int pos = input.find('\n');
     int n = stoi(input.substr(0, pos));
-    if (n < 0) return nullptr;
+
+    if (n < 0) {
+        cout << "Invalid input" << endl;
+        return nullptr;
+    }
 
     auto result = new Input();
     result->n = n;
