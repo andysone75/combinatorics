@@ -11,8 +11,8 @@ struct Edge {
 };
 
 struct Input {
-    const int n;
-    const int m;
+    int n;
+    int m;
     vector<Edge> Data;
     int Start;
     int End;
@@ -24,35 +24,77 @@ Input* Read(const char* filename);
 
 int main()
 {
-    vector<int> d;
+
+    vector<vector<int>> a, p;
     Input* input = Read("input.txt");
-    int a[];
 
     if (input == nullptr) {
         cout << "Input reading error" << endl;
         return -1;
     }
 
-    for (int i = 0; i < input->Data.size(); ++i)
-        d.push_back(INF);
+    for (int i = 0; i < input->n; ++i) {
+        a.push_back(vector<int>());
+        p.push_back(vector<int>());
+        for (int j = 0; j < input->m; ++j) {
+            a[i].push_back(INF);
+            p[i].push_back(-1);
+        }
+    }
 
-    d[input->Start] = 0;
+    a[input->Start][0] = 0;
 
     // Algorithm
-    for (int i = 0; i < input->n - 1; ++i) {
+    for (int i = 1; i < input->n; ++i) {
         for (int j = 0; j < input->m; ++j) {
             int u = input->Data[j].u;
             int v = input->Data[j].v;
             int w = input->Data[j].w;
             
-            if (d[v] > d[u] + w)
-                d[v] = d[u] + w;
+            if (a[v][i] > a[u][i - 1] + w) {
+                a[v][i] = a[u][i - 1] + w;
+                p[v][i] = u;
+            }
         }
     }
 
-    for (auto iter = d.begin(); iter < d.end(); ++iter) {
-        cout << *iter << endl;
+    // A matrix output
+    /*for (int i = 0; i < a.size(); ++i) {
+        for (int j = 0; j < a[i].size(); ++j) {
+            cout << a[i][j] << " ";
+        }
+        cout << endl;
+    }*/
+
+    int j;
+    int min = INF;
+    for (int i = 0; i < a[input->End].size(); ++i) {
+        if (a[input->End][i] < min) {
+            min = a[input->End][i];
+            j = i;
+        }
     }
+
+    if (min == INF) {
+        cout << "N" << endl;
+        return 0;
+    }
+
+    vector<int> path;
+    int i = input->End;
+    while (j > 0) {
+        path.push_back(i);
+        i = p[i][j];
+        --j;
+    }
+    path.push_back(input->Start);
+    reverse(path.begin(), path.end());
+
+    cout << "Y" << endl;
+    for (int i = 0; i < path.size(); ++i) {
+        cout << path[i] + 1 << " ";
+    }
+    cout << endl << min << endl;
     
     return 0;
 }
@@ -66,8 +108,9 @@ Input* Read(const char* filename) {
     int n = stoi(input.substr(0, pos));
     if (n < 0) return nullptr;
 
+    auto result = new Input();
+    result->n = n;
     int m;
-    vector<Edge> edges;
     
     for (int v = 0; v < n; ++v) {
         ++pos;
@@ -101,8 +144,7 @@ Input* Read(const char* filename) {
     ++pos;
     int end = stoi(input.substr(pos));
 
-    auto result = new Input({ n, m });
-
+    result->m = m;
     result->Start = start - 1;
     result->End = end - 1;
 
