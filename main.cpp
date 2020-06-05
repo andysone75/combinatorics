@@ -1,44 +1,49 @@
 ﻿#include <iostream>
 #include <fstream>
 #include <stdlib.h>
+#include <string>
 #include <vector>
 
 using namespace std;
-
-struct Graph {
-    int Count;
-    vector<vector<int>>* Data;
-    int Start;
-    int End;
-};
 
 struct Edge {
     int u, v, w;
 };
 
+struct Input {
+    const int n;
+    const int m;
+    vector<Edge> Data;
+    int Start;
+    int End;
+};
+
 #define INF 1e+6
 
-Graph* ReadInput(const char* filename);
+Input* Read(const char* filename);
 
 int main()
 {
-    Graph* input = ReadInput("input.txt");
-    vector<Edge> edges;
     vector<int> d;
+    Input* input = Read("input.txt");
+    int a[];
 
-    // Initialization
-    for (int i = 0; i < input->Count; ++i) {
-        d.push_back(INF);
+    if (input == nullptr) {
+        cout << "Input reading error" << endl;
+        return -1;
     }
+
+    for (int i = 0; i < input->Data.size(); ++i)
+        d.push_back(INF);
 
     d[input->Start] = 0;
 
     // Algorithm
-    for (int i = 0; i < input->Count - 1; ++i) {
-        for (int j = 0; j < edges.size(); ++j) {
-            int u = edges[j].u;
-            int v = edges[j].v;
-            int w = edges[j].w;
+    for (int i = 0; i < input->n - 1; ++i) {
+        for (int j = 0; j < input->m; ++j) {
+            int u = input->Data[j].u;
+            int v = input->Data[j].v;
+            int w = input->Data[j].w;
             
             if (d[v] > d[u] + w)
                 d[v] = d[u] + w;
@@ -52,43 +57,54 @@ int main()
     return 0;
 }
 
-Graph* ReadInput(const char* filename) {
-    vector<vector<int>>* graph = new vector<vector<int>>();
+Input* Read(const char* filename) {
+    auto ifinput = ifstream(filename);
+    auto input = string(istreambuf_iterator<char>(ifinput), istreambuf_iterator<char>());
+    ifinput.close();
 
-    ifstream ifinput = ifstream(filename);
+    int pos = input.find('\n');
+    int n = stoi(input.substr(0, pos));
+    if (n < 0) return nullptr;
 
-    char s[128];
-    ifinput.getline(s, 128, '\n');
+    int m;
+    vector<Edge> edges;
     
-    int vertCount = atoi(s);
+    for (int v = 0; v < n; ++v) {
+        ++pos;
+        int temp = pos;
+        pos = input.find('\n', pos);
+        string line = input.substr(temp, pos-temp);
 
-    for (int i = 0; i < vertCount; ++i) {
-        graph->push_back(vector<int>());
+        size_t linePos = 0;
+        while (linePos < line.size()) {
+            size_t temp = linePos;
+            linePos = line.find(' ', linePos);
+            if (linePos == string::npos) break;
+            int u = stoi(line.substr(temp, linePos - temp)) - 1;
 
-        ifinput.getline(s, 128, '\n');
-        
-        char c[128];
-        memset(c, 0, 128);
-        char len = strlen(s);
-        for (char j = 0; j < len; ++j) {
-            if (s[j] == ' ') {
-                graph->at(i).push_back(atoi(c));
-                memset(c, 0, 128);
-            }
-            else {
-                c[strlen(c)] = s[j];
-            }
+            temp = ++linePos;
+            linePos = line.find(' ', linePos);
+            if (linePos == string::npos) break;
+            int w = stoi(line.substr(temp, linePos - temp));
+
+            ++linePos;
+
+            result->Data.push_back(Edge({ u, v, w }));
+            m = result->Data.size();
         }
     }
 
-    ifinput.getline(s, 128, '\n');
-    int start = atoi(s) - 1;
+    int temp = ++pos;
+    pos = input.find('\n', pos);
+    int start = stoi(input.substr(temp, pos - temp));
 
-    ifinput.getline(s, 128, '\n');
-    int end = atoi(s) - 1;
+    ++pos;
+    int end = stoi(input.substr(pos));
 
-    ifinput.close();
+    auto result = new Input({ n, m });
 
-    Graph* output = new Graph({vertCount, graph, start, end});
-    return output;
+    result->Start = start - 1;
+    result->End = end - 1;
+
+    return result;
 }
