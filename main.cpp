@@ -26,35 +26,27 @@ int main()
     vector<Edge> edges;
     vector<int> d;
 
+    // Initialization
     for (int i = 0; i < input->Count; ++i) {
-        for (size_t j = 0; j < input->Data->at(i).size();) {
-            edges.push_back(Edge({ input->Data->at(i)[j] - 1, i, input->Data->at(i)[j + 1] }));
-            j += 2;
-        }
-
         d.push_back(INF);
     }
 
     d[input->Start] = 0;
 
-    for (int i = 0; i < input->Count - 1; i++) {
-        for (int j = 0; j < edges.size(); j++) {
-            if (d[edges[j].v] + edges[j].w < d[edges[j].u]) {
-                d[edges[j].u] = d[edges[j].v] + edges[j].w;
-            }
+    // Algorithm
+    for (int i = 0; i < input->Count - 1; ++i) {
+        for (int j = 0; j < edges.size(); ++j) {
+            int u = edges[j].u;
+            int v = edges[j].v;
+            int w = edges[j].w;
+            
+            if (d[v] > d[u] + w)
+                d[v] = d[u] + w;
         }
     }
 
-    cout << "Start vertex: " << input->Start;
-    cout << "Shortest ways list: ";
-
-    for (int i = 0; i < input->Count; i++) {
-        if (d[i] == INF) {
-            cout << endl << input->Start << "->" << i << "=" << "Not";
-        }
-        else {
-            cout << endl << input->Start << "->" << i << "=" << d[i];
-        }
+    for (auto iter = d.begin(); iter < d.end(); ++iter) {
+        cout << *iter << endl;
     }
     
     return 0;
